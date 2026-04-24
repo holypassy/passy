@@ -1,0 +1,71 @@
+:root {
+    --primary: #FFD700;           /* gold */
+    --primary-dark: #F0B27A;      /* dark gold / orange */
+    --primary-light: #FFE55C;     /* light gold */
+    --secondary: #7c3aed;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+    --dark: #0f172a;
+    --gray: #64748b;
+    --light: #f8fafc;
+    --border: #e2e8f0;
+    --sidebar-active: #fff3e0;    /* light gold for sidebar active */
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+    --shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+}
+body {
+    background: linear-gradient(135deg, #87CEEB 0%, #B0E2FF 100%);
+}
+.toolbar {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+.toolbar button, .toolbar a {
+    background: #2c3e50;
+    color: white;
+}
+.toolbar .print-btn {
+    background: #FFD700;
+    color: #1e293b;
+}
+.right-text {
+    color: var(--primary);
+}
+.quote-header, .tax-section, .totals-box {
+    border: 1px solid var(--primary);
+}
+.items-table th {
+    background: var(--primary);
+    color: #1e293b;
+}
+.btn-add-row {
+    background: var(--primary);
+    color: #1e293b;
+}
+.btn-save-print {
+    background: var(--primary);
+    color: #1e293b;
+}
+.grand-total {
+    color: var(--primary) !important;
+}
+.stat-card::after {
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+}
+.quick-action-icon {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+.quick-action-icon i {
+    color: #1e293b;
+}
+.watermark {
+    color: var(--primary);
+}
+footer {
+    background: var(--primary);
+}
+/* ... and many other gold accents */

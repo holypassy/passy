@@ -1,0 +1,62 @@
+RewriteEngine On
+RewriteBase /
+
+# API Routes
+RewriteRule ^api/auth$ api/auth.php [L,QSA]
+RewriteRule ^api/dashboard$ api/dashboard.php [L,QSA]
+RewriteRule ^api/customers$ api/customers.php [L,QSA]
+RewriteRule ^api/inventory$ api/inventory.php [L,QSA]
+RewriteRule ^api/job-cards$ api/job_cards.php [L,QSA]
+RewriteRule ^api/cash$ api/cash.php [L,QSA]
+RewriteRule ^api/reminders$ api/reminders.php [L,QSA]
+
+# View Routes
+RewriteRule ^$ views/index.php [L]
+RewriteRule ^login$ views/index.php [L]
+RewriteRule ^dashboard$ views/dashboard_erp.php [L]
+
+# Handle direct file access
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L]
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Protect sensitive files
+
+# API Routes
+RewriteRule ^api/services/?$ api/services.php [L,QSA]
+RewriteRule ^api/services/([0-9]+)/?$ api/services.php?path=$1 [L,QSA]
+RewriteRule ^api/services/stats/?$ api/services.php?path=stats [L,QSA]
+
+RewriteRule ^api/products/?$ api/products.php [L,QSA]
+RewriteRule ^api/products/([0-9]+)/?$ api/products.php?path=$1 [L,QSA]
+RewriteRule ^api/products/stats/?$ api/products.php?path=stats [L,QSA]
+RewriteRule ^api/products/low-stock/?$ api/products.php?path=low-stock [L,QSA]
+
+# Frontend Routes
+RewriteRule ^catalog/?$ index.php?route=catalog [L,QSA]
+RewriteRule ^services/?$ index.php?route=services [L,QSA]
+RewriteRule ^products/?$ index.php?route=products [L,QSA]
+
+# Prevent direct access to sensitive directories
+RewriteRule ^(config|core|models|controllers|helpers|utils)/ - [F,L]
+
+
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(config|controllers|models|middleware)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

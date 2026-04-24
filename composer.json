@@ -1,0 +1,13 @@
+{
+    "name": "savant-motors/erp",
+    "description": "Savant Motors ERP System",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {
+        "php": ">=7.4.0"
+    }
+}
