@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Save User</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; max-width: 300px; }
+        button { padding: 10px 20px; background: blue; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; display: none; }
+        .success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test Save User</h1>
+    <form id="testForm">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="full_name" value="Test User" required>
+        </div>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" value="testuser" required>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" value="test@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>Role</label>
+            <select name="role">
+                <option value="cashier">Cashier</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+                <option value="technician">Technician</option>
+                <option value="receptionist">Receptionist</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" value="password123">
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" value="password123">
+        </div>
+        <button type="submit">Save User</button>
+    </form>
+    
+    <div id="result" class="result"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = 'Processing...';
+            
+            fetch('save_user.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ Success: ' + data.message;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ Error: ' + data.message;
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Fetch Error: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>

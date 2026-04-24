@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Savant Motors — Pickup Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:'Inter',sans-serif;
+            background:#0f172a;
+            min-height:100vh;
+            color:white;
+        }
+
+        /* Header */
+        .hdr {
+            background:linear-gradient(135deg,#1e1b4b,#312e81);
+            padding:1rem 1.2rem;
+            display:flex; align-items:center; gap:0.75rem;
+            position:sticky; top:0; z-index:100;
+            box-shadow:0 2px 12px rgba(0,0,0,0.4);
+        }
+        .hdr-logo { font-size:1.8rem; }
+        .hdr-text h1 { font-size:1rem; font-weight:700; }
+        .hdr-text p  { font-size:0.68rem; opacity:0.65; margin-top:1px; }
+        .live-pill {
+            margin-left:auto;
+            background:#10b981; color:white;
+            padding:0.25rem 0.65rem; border-radius:2rem;
+            font-size:0.65rem; font-weight:700;
+            display:flex; align-items:center; gap:4px;
+        }
+        .live-dot {
+            width:6px;height:6px;background:white;border-radius:50%;
+            animation:ldot 1.4s ease-in-out infinite;
+        }
+        @keyframes ldot{0%,100%{opacity:1}50%{opacity:0.3}}
+
+        /* Pickup card */
+        .pickup-card {
+            margin:1rem;
+            background:linear-gradient(135deg,#1e293b,#0f172a);
+            border:1px solid #334155;
+            border-radius:1rem;
+            overflow:hidden;
+        }
+        .pc-header {
+            background:linear-gradient(135deg,#2563eb,#7c3aed);
+            padding:1rem 1.2rem;
+            display:flex; align-items:center; gap:0.75rem;
+        }
+        .pc-icon { font-size:1.6rem; }
+        .pc-title h2 { font-size:0.95rem; font-weight:700; }
+        .pc-title p  { font-size:0.7rem; opacity:0.75; margin-top:2px; }
+        .pc-body { padding:1rem 1.2rem; }
+        .pc-row {
+            display:flex; align-items:flex-start; gap:0.6rem;
+            padding:0.55rem 0;
+            border-bottom:1px solid #1e293b;
+            font-size:0.82rem;
+        }
+        .pc-row:last-child { border-bottom:none; }
+        .pc-label { color:#64748b; font-size:0.68rem; font-weight:700; text-transform:uppercase; min-width:72px; margin-top:2px; }
+        .pc-val   { color:#e2e8f0; flex:1; font-weight:500; }
+
+        /* Status buttons */
+        .status-section {
+            margin:0 1rem 1rem;
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:1rem;
+            padding:1.1rem;
+        }
+        .status-section h3 {
+            font-size:0.78rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.5px; color:#94a3b8; margin-bottom:0.85rem;
+        }
+        .status-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+        .s-btn {
+            padding:0.75rem 0.5rem;
+            border-radius:0.7rem;
+            border:1.5px solid transparent;
+            font-size:0.78rem; font-weight:700;
+            cursor:pointer;
+            display:flex; flex-direction:column; align-items:center; gap:4px;
+            transition:all 0.15s;
+            color:white;
+        }
+        .s-btn .s-icon { font-size:1.3rem; }
+        .s-btn.departed { background:#0284c7; border-color:#38bdf8; }
+        .s-btn.arrived  { background:#059669; border-color:#34d399; }
+        .s-btn.enroute  { background:#7c3aed; border-color:#a78bfa; }
+        .s-btn.done     { background:#0f172a; border-color:#10b981; color:#10b981; }
+        .s-btn.active   { transform:scale(0.96); filter:brightness(0.85); }
+        .s-btn:hover    { filter:brightness(1.12); }
+
+        /* Location input */
+        .loc-section {
+            margin:0 1rem 1rem;
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:1rem;
+            padding:1.1rem;
+        }
+        .loc-section h3 {
+            font-size:0.78rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.5px; color:#94a3b8; margin-bottom:0.75rem;
+            display:flex; align-items:center; gap:0.4rem;
+        }
+        .loc-input {
+            width:100%;
+            background:#0f172a;
+            border:1.5px solid #334155;
+            border-radius:0.6rem;
+            color:white;
+            padding:0.75rem;
+            font-size:0.85rem;
+            font-family:inherit;
+            resize:none;
+            outline:none;
+            transition:border-color 0.15s;
+        }
+        .loc-input:focus { border-color:#7c3aed; }
+        .loc-input::placeholder { color:#475569; }
+        .eta-row { display:flex; gap:0.5rem; margin-top:0.6rem; align-items:center; }
+        .eta-label { font-size:0.72rem; color:#94a3b8; font-weight:600; white-space:nowrap; }
+        .eta-input {
+            width:70px;
+            background:#0f172a;
+            border:1.5px solid #334155;
+            border-radius:0.5rem;
+            color:white;
+            padding:0.5rem;
+            font-size:0.8rem;
+            font-family:inherit;
+            text-align:center;
+            outline:none;
+        }
+        .eta-input:focus { border-color:#7c3aed; }
+        .loc-submit {
+            width:100%; margin-top:0.7rem;
+            background:linear-gradient(135deg,#7c3aed,#312e81);
+            border:none; color:white;
+            padding:0.8rem;
+            border-radius:0.65rem;
+            font-size:0.85rem; font-weight:700;
+            cursor:pointer;
+            display:flex; align-items:center; justify-content:center; gap:0.5rem;
+            transition:filter 0.15s;
+        }
+        .loc-submit:hover { filter:brightness(1.1); }
+        .loc-submit:disabled { opacity:0.45; cursor:not-allowed; }
+
+        /* WA section */
+        .wa-section {
+            margin:0 1rem 1rem;
+            background:#064e3b;
+            border:1px solid #065f46;
+            border-radius:1rem;
+            padding:1.1rem;
+        }
+        .wa-section h3 {
+            font-size:0.78rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.5px; color:#6ee7b7; margin-bottom:0.75rem;
+        }
+        .wa-msg-preview {
+            background:#0f172a;
+            border:1px solid #065f46;
+            border-radius:0.5rem;
+            padding:0.7rem;
+            font-size:0.76rem;
+            color:#d1fae5;
+            white-space:pre-wrap;
+            margin-bottom:0.65rem;
+            max-height:120px;
+            overflow-y:auto;
+        }
+        .wa-open-btn {
+            display:flex; align-items:center; justify-content:center; gap:0.5rem;
+            width:100%;
+            background:#25D366; color:white;
+            padding:0.8rem;
+            border-radius:0.65rem;
+            font-size:0.85rem; font-weight:700;
+            text-decoration:none;
+            transition:filter 0.15s;
+        }
+        .wa-open-btn:hover { filter:brightness(0.9); }
+
+        /* Toast */
+        .toast {
+            position:fixed; bottom:1.5rem; left:50%;
+            transform:translateX(-50%);
+            background:#10b981; color:white;
+            padding:0.6rem 1.3rem;
+            border-radius:2rem;
+            font-size:0.8rem; font-weight:700;
+            z-index:999;
+            animation:toastIn 0.25s ease;
+            white-space:nowrap;
+        }
+        .toast.err { background:#ef4444; }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+        /* Empty state */
+        .empty {
+            text-align:center; padding:3rem 1.5rem;
+            color:#475569;
+        }
+        .empty .ei { font-size:3rem; margin-bottom:1rem; }
+    </style>
+</head>
+<body>
+
+<div class="hdr">
+    <div class="hdr-logo">🚗</div>
+    <div class="hdr-text">
+        <h1>Savant Motors</h1>
+        <p>Staff Pickup Tracker</p>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>LIVE</div>
+</div>
+
+<div id="appRoot">
+    <div class="empty">
+        <div class="ei">⏳</div>
+        <p>Loading your pickup assignment…</p>
+    </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────
+const API = 'ai_pickup_agent_api.php';
+
+// Read params from URL:  ?reminder_id=5&staff_id=2&staff_name=John+Doe
+const params   = new URLSearchParams(location.search);
+const remId    = parseInt(params.get('reminder_id') || '0');
+const staffId  = parseInt(params.get('staff_id')   || '0');
+const staffName= decodeURIComponent(params.get('staff_name') || 'Staff');
+
+let currentStatus = 'pending';
+let reminderData  = null;
+
+// ── Init ──────────────────────────────────────────────────────────────
+async function init() {
+    if (!remId) {
+        renderEmpty('No pickup assignment found. Check the link you received.');
+        return;
+    }
+    await loadReminder();
+}
+
+async function loadReminder() {
+    try {
+        const res  = await fetch(`${API}?action=get_status`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        const rem = (data.reminders || []).find(r => parseInt(r.id) === remId);
+        if (!rem) { renderEmpty('Pickup #' + remId + ' not found or already completed.'); return; }
+
+        reminderData = rem;
+        currentStatus = rem.status || 'pending';
+        render(rem);
+    } catch(e) {
+        renderEmpty('Could not load pickup data: ' + e.message);
+    }
+}
+
+// ── Render ────────────────────────────────────────────────────────────
+function render(r) {
+    const dueDate = r.pickup_date
+        ? new Date(r.pickup_date + 'T' + (r.pickup_time||'08:00')).toLocaleString('en-UG',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
+        : 'TBD';
+
+    const typeIcon = r.pickup_type === 'home' ? '🏠' : r.pickup_type === 'office' ? '💼' : '🏢';
+    const statusBadge = {
+        pending:'⏰ Pending', scheduled:'📅 Scheduled',
+        in_progress:'🚚 En Route', completed:'✅ Done', cancelled:'❌ Cancelled'
+    }[r.status] || r.status;
+
+    const staffWaMsg = buildStaffUpdateMsg(r);
+    const custWaMsg  = buildCustomerMsg(r);
+    const custPhone  = normalisePhone(r.customer_phone || '');
+    const custWaLink = custPhone ? `https://wa.me/${custPhone}?text=${encodeURIComponent(custWaMsg)}` : '#';
+
+    document.getElementById('appRoot').innerHTML = `
+        <!-- Pickup Card -->
+        <div class="pickup-card">
+            <div class="pc-header">
+                <div class="pc-icon">🚗</div>
+                <div class="pc-title">
+                    <h2>${r.reminder_number || 'Pickup'}</h2>
+                    <p>Status: ${statusBadge}</p>
+                </div>
+            </div>
+            <div class="pc-body">
+                <div class="pc-row"><span class="pc-label">Customer</span><span class="pc-val">${esc(r.customer_name||'N/A')}</span></div>
+                <div class="pc-row"><span class="pc-label">Phone</span><span class="pc-val">${esc(r.customer_phone||'N/A')}</span></div>
+                <div class="pc-row"><span class="pc-label">Vehicle</span><span class="pc-val">${esc((r.vehicle_reg||''))} ${esc((r.vehicle_make||''))} ${esc((r.vehicle_model||''))}</span></div>
+                <div class="pc-row"><span class="pc-label">Due</span><span class="pc-val">${dueDate}</span></div>
+                <div class="pc-row"><span class="pc-label">Type</span><span class="pc-val">${typeIcon} ${ucfirst(r.pickup_type||'workshop')}</span></div>
+                ${r.pickup_address ? `<div class="pc-row"><span class="pc-label">Address</span><span class="pc-val">${esc(r.pickup_address)}</span></div>` : ''}
+                ${r.pickup_location_details ? `<div class="pc-row"><span class="pc-label">Landmark</span><span class="pc-val">${esc(r.pickup_location_details)}</span></div>` : ''}
+                ${r.notes ? `<div class="pc-row"><span class="pc-label">Notes</span><span class="pc-val">${esc(r.notes)}</span></div>` : ''}
+            </div>
+        </div>
+
+        <!-- Status Update -->
+        <div class="status-section">
+            <h3>📡 Update My Status</h3>
+            <div class="status-grid">
+                <button class="s-btn departed" onclick="updateStatus('departed')">
+                    <span class="s-icon">🚀</span>I Have Departed
+                </button>
+                <button class="s-btn enroute" onclick="updateStatus('enroute')">
+                    <span class="s-icon">🚚</span>En Route
+                </button>
+                <button class="s-btn arrived" onclick="updateStatus('arrived')">
+                    <span class="s-icon">📍</span>I Have Arrived
+                </button>
+                <button class="s-btn done" onclick="updateStatus('done')">
+                    <span class="s-icon">✅</span>Job Complete
+                </button>
+            </div>
+        </div>
+
+        <!-- Location Update -->
+        <div class="loc-section">
+            <h3>📍 Share My Location</h3>
+            <textarea class="loc-input" id="locText" rows="2"
+                placeholder="e.g. Ntinda roundabout, near Total petrol station…"></textarea>
+            <div class="eta-row">
+                <span class="eta-label">⏱️ ETA (minutes):</span>
+                <input type="number" class="eta-input" id="etaMins" placeholder="20" min="0" max="999">
+                <span style="font-size:0.72rem;color:#64748b;">mins away</span>
+            </div>
+            <button class="loc-submit" id="locBtn" onclick="sendLocation()">
+                📡 Send Location Update
+            </button>
+        </div>
+
+        <!-- WhatsApp Notify Customer -->
+        ${custPhone ? `
+        <div class="wa-section">
+            <h3>📱 Notify Customer via WhatsApp</h3>
+            <div class="wa-msg-preview">${esc(custWaMsg)}</div>
+            <a class="wa-open-btn" href="${custWaLink}" target="_blank" rel="noopener">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.83L.057 23.856a.5.5 0 0 0 .613.613l6.026-1.466A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.626 0 11.999 0zm0 21.818a9.807 9.807 0 0 1-5.001-1.373l-.359-.213-3.714.904.921-3.618-.234-.372A9.807 9.807 0 0 1 2.182 12c0-5.422 4.396-9.818 9.818-9.818 5.422 0 9.818 4.396 9.818 9.818 0 5.422-4.396 9.818-9.818 9.818z"/></svg>
+                Open WhatsApp — Notify Customer
+            </a>
+        </div>` : ''}
+    `;
+}
+
+function renderEmpty(msg) {
+    document.getElementById('appRoot').innerHTML = `
+        <div class="empty">
+            <div class="ei">📭</div>
+            <p>${msg}</p>
+            <p style="margin-top:0.5rem;font-size:0.75rem;color:#334155;">Contact the workshop for assistance.</p>
+        </div>`;
+}
+
+// ── Status update ─────────────────────────────────────────────────────
+async function updateStatus(status) {
+    const labels = {
+        departed: 'Departed ✅', enroute: 'En Route 🚚',
+        arrived: 'Arrived ✅', done: 'Job Complete ✅'
+    };
+    const body = new FormData();
+    body.append('action',     'update_location');
+    body.append('staff_id',   staffId);
+    body.append('staff_name', staffName);
+    body.append('reminder_id',remId);
+    body.append('location',   labels[status] + ' — ' + staffName);
+    body.append('status',     status);
+
+    try {
+        const res  = await fetch(API, {method:'POST', body});
+        const data = await res.json();
+        if (data.success) {
+            toast(labels[status] + ' recorded!');
+            currentStatus = status;
+            if (status === 'done') {
+                setTimeout(() => { renderEmpty('Pickup marked complete. Well done! 🎉'); }, 1500);
+            }
+        } else toast('Error: ' + data.message, true);
+    } catch(e) { toast('Network error', true); }
+}
+
+// ── Location send ─────────────────────────────────────────────────────
+async function sendLocation() {
+    const loc = document.getElementById('locText').value.trim();
+    const eta = document.getElementById('etaMins').value;
+    const btn = document.getElementById('locBtn');
+
+    if (!loc) { toast('Please enter your current location', true); return; }
+
+    btn.disabled = true;
+    btn.textContent = '📡 Sending…';
+
+    const body = new FormData();
+    body.append('action',     'update_location');
+    body.append('staff_id',   staffId);
+    body.append('staff_name', staffName);
+    body.append('reminder_id',remId);
+    body.append('location',   loc);
+    body.append('status',     currentStatus === 'pending' ? 'enroute' : currentStatus);
+    if (eta) body.append('eta_minutes', eta);
+
+    try {
+        const res  = await fetch(API, {method:'POST', body});
+        const data = await res.json();
+        toast(data.success ? '📍 Location sent to manager!' : 'Error: ' + data.message, !data.success);
+        if (data.success) {
+            document.getElementById('locText').value = '';
+            document.getElementById('etaMins').value = '';
+        }
+    } catch(e) { toast('Network error', true); }
+    finally {
+        btn.disabled = false;
+        btn.innerHTML = '📡 Send Location Update';
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────
+function buildCustomerMsg(r) {
+    const time = r.pickup_time ? r.pickup_time.substring(0,5) : '';
+    const date = r.pickup_date ? new Date(r.pickup_date).toLocaleDateString('en-UG',{weekday:'short',day:'numeric',month:'short'}) : '';
+    return `🚗 *SAVANT MOTORS*\n\nDear ${r.customer_name||'Customer'},\n\nOur driver *${staffName}* is on the way to pick up your vehicle *${r.vehicle_reg||''}*.\n\n📅 Scheduled: ${date} ${time}\n\nPlease ensure the vehicle is accessible. We'll be with you shortly!\n\nThank you 🙏`;
+}
+
+function buildStaffUpdateMsg(r) {
+    return `🔧 Savant Motors — Pickup Update\nJob: ${r.reminder_number||''}\nCustomer: ${r.customer_name||''}\nVehicle: ${r.vehicle_reg||''}\nAddress: ${r.pickup_address||'Workshop'}`;
+}
+
+function normalisePhone(p) {
+    const d = p.replace(/[^0-9]/g,'');
+    if (d.startsWith('0')) return '256' + d.substring(1);
+    if (!d.startsWith('256')) return '256' + d;
+    return d;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ucfirst(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+
+function toast(msg, err=false) {
+    const t = document.createElement('div');
+    t.className = 'toast' + (err ? ' err' : '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2800);
+}
+
+init();
+</script>
+</body>
+</html>
