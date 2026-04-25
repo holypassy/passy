@@ -1,4 +1,1 @@
-RewriteEngine on
-RewriteCond %{HTTP_HOST} ^(www.)?yourdomain.com$ [NC]
-RewriteCond %{REQUEST_URI} !^/public/
-RewriteRule ^(.*)$ /public/$1 [L]
+DirectoryIndex index.php
