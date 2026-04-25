@@ -1,7 +1,7 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $db_name = "savant_motors_pos";
+    private $host = "cloudways";
+    private $db_name = "sckthefdnh";
     private $username = "sckthefdnh";
     private $password = "JYzB97htsZ";
     private $conn;
